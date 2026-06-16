@@ -3,9 +3,11 @@ package com.example.set5;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.GridLayout;
 import android.widget.TextView;
 
 public class GameActivity extends Activity {
@@ -29,6 +31,8 @@ public class GameActivity extends Activity {
 
     private TextView roomLabel;
     private TextView roomValueLabel;
+    private GridLayout roomMap;
+    private TextView[][] mapCells;
     private Button upButton;
     private Button downButton;
     private Button leftButton;
@@ -41,12 +45,14 @@ public class GameActivity extends Activity {
 
         roomLabel = findViewById(R.id.roomLabel);
         roomValueLabel = findViewById(R.id.roomValueLabel);
+        roomMap = findViewById(R.id.roomMap);
         upButton = findViewById(R.id.upButton);
         downButton = findViewById(R.id.downButton);
         leftButton = findViewById(R.id.leftButton);
         rightButton = findViewById(R.id.rightButton);
 
         findStartRoom();
+        createRoomMap();
         setButtonListeners();
         updateRoom();
     }
@@ -134,6 +140,7 @@ public class GameActivity extends Activity {
         int roomValue = MAZE[currentRow][currentColumn];
         roomLabel.setText("Room: row " + currentRow + ", column " + currentColumn);
         roomValueLabel.setText("Room value: " + roomValue);
+        updateRoomMap();
 
         updateDirectionButton(upButton, canMove(UP, -1, 0));
         updateDirectionButton(downButton, canMove(DOWN, 1, 0));
@@ -150,5 +157,48 @@ public class GameActivity extends Activity {
             button.setBackgroundColor(Color.rgb(158, 158, 158));
             button.setTextColor(Color.rgb(66, 66, 66));
         }
+    }
+
+    private void createRoomMap() {
+        mapCells = new TextView[MAZE.length][MAZE[0].length];
+        roomMap.removeAllViews();
+
+        int cellSize = (int) (26 * getResources().getDisplayMetrics().density);
+        int cellMargin = (int) (2 * getResources().getDisplayMetrics().density);
+
+        for (int row = 0; row < MAZE.length; row++) {
+            for (int column = 0; column < MAZE[row].length; column++) {
+                TextView cell = new TextView(this);
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams(
+                        GridLayout.spec(row),
+                        GridLayout.spec(column)
+                );
+                params.width = cellSize;
+                params.height = cellSize;
+                params.setMargins(cellMargin, cellMargin, cellMargin, cellMargin);
+                cell.setLayoutParams(params);
+                cell.setContentDescription("Room row " + row + ", column " + column);
+
+                mapCells[row][column] = cell;
+                roomMap.addView(cell);
+            }
+        }
+    }
+
+    private void updateRoomMap() {
+        for (int row = 0; row < mapCells.length; row++) {
+            for (int column = 0; column < mapCells[row].length; column++) {
+                boolean isCurrentRoom = row == currentRow && column == currentColumn;
+                mapCells[row][column].setBackground(createMapCellBackground(isCurrentRoom));
+            }
+        }
+    }
+
+    private GradientDrawable createMapCellBackground(boolean isCurrentRoom) {
+        GradientDrawable background = new GradientDrawable();
+        background.setShape(GradientDrawable.RECTANGLE);
+        background.setColor(isCurrentRoom ? Color.rgb(184, 131, 82) : Color.rgb(71, 42, 26));
+        background.setStroke(1, Color.rgb(37, 25, 18));
+        return background;
     }
 }
