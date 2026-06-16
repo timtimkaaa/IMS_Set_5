@@ -3,7 +3,6 @@ package com.example.set5;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +31,7 @@ public class GameActivity extends Activity {
     private TextView roomLabel;
     private TextView roomValueLabel;
     private GridLayout roomMap;
-    private TextView[][] mapCells;
+    private View[][] mapCells;
     private Button upButton;
     private Button downButton;
     private Button leftButton;
@@ -116,6 +115,7 @@ public class GameActivity extends Activity {
         // A room value of 0 is the finish room.
         if (MAZE[currentRow][currentColumn] == 0) {
             startActivity(new Intent(this, ResultActivity.class));
+            finish();
             return;
         }
 
@@ -160,7 +160,7 @@ public class GameActivity extends Activity {
     }
 
     private void createRoomMap() {
-        mapCells = new TextView[MAZE.length][MAZE[0].length];
+        mapCells = new View[MAZE.length][MAZE[0].length];
         roomMap.removeAllViews();
 
         int cellSize = (int) (26 * getResources().getDisplayMetrics().density);
@@ -168,7 +168,7 @@ public class GameActivity extends Activity {
 
         for (int row = 0; row < MAZE.length; row++) {
             for (int column = 0; column < MAZE[row].length; column++) {
-                TextView cell = new TextView(this);
+                View cell = new View(this);
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams(
                         GridLayout.spec(row),
                         GridLayout.spec(column)
@@ -189,16 +189,12 @@ public class GameActivity extends Activity {
         for (int row = 0; row < mapCells.length; row++) {
             for (int column = 0; column < mapCells[row].length; column++) {
                 boolean isCurrentRoom = row == currentRow && column == currentColumn;
-                mapCells[row][column].setBackground(createMapCellBackground(isCurrentRoom));
+                if (isCurrentRoom) {
+                    mapCells[row][column].setBackgroundColor(Color.rgb(184, 131, 82));
+                } else {
+                    mapCells[row][column].setBackgroundColor(Color.rgb(71, 42, 26));
+                }
             }
         }
-    }
-
-    private GradientDrawable createMapCellBackground(boolean isCurrentRoom) {
-        GradientDrawable background = new GradientDrawable();
-        background.setShape(GradientDrawable.RECTANGLE);
-        background.setColor(isCurrentRoom ? Color.rgb(184, 131, 82) : Color.rgb(71, 42, 26));
-        background.setStroke(1, Color.rgb(37, 25, 18));
-        return background;
     }
 }
